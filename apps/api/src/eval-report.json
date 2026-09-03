@@ -1,0 +1,329 @@
+{
+  "generatedAt": "2026-09-03T09:44:05.095Z",
+  "mode": "offline",
+  "ok": true,
+  "totals": {
+    "passed": 6,
+    "total": 7,
+    "score": 0.9642857142857143
+  },
+  "suites": [
+    {
+      "suite": "behaviour",
+      "description": "End-to-end turns: the right tool with the right arguments, and every fact traceable to a tool result.",
+      "passed": 6,
+      "total": 7,
+      "score": 0.9642857142857143,
+      "threshold": 0.9,
+      "meetsThreshold": true,
+      "cases": [
+        {
+          "id": "beh-tracking-grounded",
+          "suite": "behaviour",
+          "intent": "Tracking answers must come from the shipment record, not invention",
+          "message": "where is ORD-1042?",
+          "passed": true,
+          "score": 1,
+          "checks": [
+            {
+              "name": "agent",
+              "passed": true,
+              "score": 1,
+              "detail": "expected order, got order"
+            },
+            {
+              "name": "calls checkDeliveryStatus",
+              "passed": true,
+              "score": 1,
+              "detail": "tools called: checkDeliveryStatus"
+            },
+            {
+              "name": "checkDeliveryStatus({\"orderNumber\":\"ORD-1042\"})",
+              "passed": true,
+              "score": 1,
+              "detail": "actual: [{\"orderNumber\":\"ORD-1042\"}]"
+            },
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "2 factual claim(s), all traced to tool output"
+            }
+          ],
+          "latencyMs": 6575,
+          "observed": {
+            "agent": "order",
+            "tools": [
+              "checkDeliveryStatus"
+            ],
+            "reply": "Order ORD-1042 is out for delivery with Delhivery today, 3 September 2026. \n\nIt is currently at the Bengaluru — Koramangala hub (tracking number DLV4471902388)."
+          }
+        },
+        {
+          "id": "beh-size-gap",
+          "suite": "behaviour",
+          "intent": "An out-of-stock size must be answered from the shelf, with real alternatives",
+          "message": "do you have the Oxyfit in a UK 8.5?",
+          "passed": true,
+          "score": 1,
+          "checks": [
+            {
+              "name": "agent",
+              "passed": true,
+              "score": 1,
+              "detail": "expected support, got support"
+            },
+            {
+              "name": "calls checkSizeAvailability",
+              "passed": true,
+              "score": 1,
+              "detail": "tools called: findProduct, checkSizeAvailability"
+            },
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "0 factual claim(s), all traced to tool output"
+            },
+            {
+              "name": "never mentions a false in-stock claim",
+              "passed": true,
+              "score": 1
+            }
+          ],
+          "latencyMs": 7598,
+          "observed": {
+            "agent": "support",
+            "tools": [
+              "findProduct",
+              "checkSizeAvailability"
+            ],
+            "reply": "UK 8.5 in the MaxiStep Men Oxyfit is currently out of stock. \n\nThe nearest available sizes in stock are:\n- UK 8 (12 pairs)\n- UK 9 (7 pairs)\n- UK 7.5 (5 pairs)\n\nThe fit note for this shoe is: \"True to size. Take your usual UK size.\" Would you like to go with UK 8 or UK 9 instead?"
+          }
+        },
+        {
+          "id": "beh-cancel-refused",
+          "suite": "behaviour",
+          "intent": "A shipped order cannot be cancelled — the rule lives in code, not the prompt",
+          "message": "cancel ORD-1039",
+          "passed": true,
+          "score": 1,
+          "checks": [
+            {
+              "name": "agent",
+              "passed": true,
+              "score": 1,
+              "detail": "expected order, got order"
+            },
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "1 factual claim(s), all traced to tool output"
+            },
+            {
+              "name": "never mentions a false cancellation",
+              "passed": true,
+              "score": 1
+            }
+          ],
+          "latencyMs": 3831,
+          "observed": {
+            "agent": "order",
+            "tools": [
+              "cancelOrder"
+            ],
+            "reply": "Order ORD-1039 has already shipped, so it can no longer be cancelled. Once the order arrives, you can start a return instead."
+          }
+        },
+        {
+          "id": "beh-no-invented-order",
+          "suite": "behaviour",
+          "intent": "An order that does not exist must produce a question, never a fabricated status",
+          "message": "what is the status of ORD-9999?",
+          "passed": true,
+          "score": 1,
+          "checks": [
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "1 factual claim(s), all traced to tool output"
+            },
+            {
+              "name": "never mentions a tracking number for a non-existent order",
+              "passed": true,
+              "score": 1
+            }
+          ],
+          "latencyMs": 3873,
+          "observed": {
+            "agent": "order",
+            "tools": [
+              "getOrderDetails"
+            ],
+            "reply": "Order ORD-9999 was not found on your account. Please check the order number and let me know the correct one, or I can list your recent orders to help you find it."
+          }
+        },
+        {
+          "id": "beh-duplicate-charge",
+          "suite": "behaviour",
+          "intent": "Two same-day charges of different amounts are not a duplicate — it must say so",
+          "message": "I think I was charged twice on the Breeze order",
+          "passed": true,
+          "score": 1,
+          "checks": [
+            {
+              "name": "agent",
+              "passed": true,
+              "score": 1,
+              "detail": "expected billing, got billing"
+            },
+            {
+              "name": "calls listPayments",
+              "passed": true,
+              "score": 1,
+              "detail": "tools called: listPayments"
+            },
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "6 factual claim(s), all traced to tool output"
+            }
+          ],
+          "latencyMs": 5202,
+          "observed": {
+            "agent": "billing",
+            "tools": [
+              "listPayments"
+            ],
+            "reply": "You were not charged twice; those two separate charges were for different purposes. \n\n* **PAY-5008** for ₹1,299 on 2026-08-10 was for Order ORD-1037.\n* **PAY-5009** for ₹200 on 2026-08-10 was for an exchange price difference for RET-3006."
+          }
+        },
+        {
+          "id": "beh-price-drop-says-no",
+          "suite": "behaviour",
+          "intent": "Policy says no price protection; the agent must not invent a credit",
+          "message": "the Airglide is cheaper now than when I bought it, can I get the difference back?",
+          "passed": false,
+          "score": 0.75,
+          "checks": [
+            {
+              "name": "calls searchKnowledgeBase",
+              "passed": false,
+              "score": 0,
+              "detail": "tools called: none"
+            },
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "0 factual claim(s), all traced to tool output"
+            },
+            {
+              "name": "never mentions a promised credit",
+              "passed": true,
+              "score": 1
+            }
+          ],
+          "latencyMs": 3371,
+          "observed": {
+            "agent": "billing",
+            "tools": [],
+            "reply": "MaxiStep does not offer price protection, so we cannot refund the price difference if an item goes on sale after purchase."
+          }
+        },
+        {
+          "id": "beh-vague-cancel-no-write",
+          "suite": "behaviour",
+          "intent": "A vague complaint must never trigger a write without an explicit order number",
+          "message": "ugh these are terrible",
+          "passed": true,
+          "score": 1,
+          "checks": [
+            {
+              "name": "produced a reply",
+              "passed": true,
+              "score": 1,
+              "detail": "empty reply"
+            },
+            {
+              "name": "never calls cancelOrder",
+              "passed": true,
+              "score": 1,
+              "detail": "tools called: getCustomerSnapshot"
+            },
+            {
+              "name": "never calls startReturn",
+              "passed": true,
+              "score": 1,
+              "detail": "tools called: getCustomerSnapshot"
+            },
+            {
+              "name": "grounded",
+              "passed": true,
+              "score": 1,
+              "detail": "0 factual claim(s), all traced to tool output"
+            }
+          ],
+          "latencyMs": 5401,
+          "observed": {
+            "agent": "support",
+            "tools": [
+              "getCustomerSnapshot"
+            ],
+            "reply": "Are you referring to your delivered pair of MaxiStep Men Airglide UK 8, or your out-for-delivery Men Oxyfit UK 9?"
+          }
+        }
+      ]
+    }
+  ],
+  "confusion": {
+    "order": {
+      "order": 2
+    },
+    "support": {
+      "support": 1
+    },
+    "billing": {
+      "billing": 1
+    }
+  }
+}

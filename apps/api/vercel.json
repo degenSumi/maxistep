@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/health", "destination": "/api/index" },
+    { "source": "/api/chat/:path*", "destination": "/api/index" },
+    { "source": "/api/agents/:path*", "destination": "/api/index" },
+    { "source": "/api/evals/:path*", "destination": "/api/index" }
+  ]
+}

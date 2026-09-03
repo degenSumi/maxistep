@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #0b0f16;
+  --color-surface: #121822;
+  --color-surface-2: #182130;
+  --color-line: #232f42;
+  --color-ink: #e8eef7;
+  --color-muted: #8296b0;
+
+  /* Teal belongs to MaxiStep, matching the storefront. It sits nearer the
+     agent palette than the old orange did, so the agent dots and chips stay
+     saturated and the brand is used only on large surfaces — logo tile,
+     tagline, glow — where the two never appear side by side. */
+  --color-brand: #14b8a6;
+  --color-brand-hi: #2dd4bf;
+  --color-brand-soft: #5eead4;
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+  /* Mobile browsers resize the viewport as the URL bar hides and shows; 100%
+     resolves against the larger one and pushes the composer out of reach. */
+  height: 100dvh;
+}
+
+body {
+  /* Taps should feel like presses, not like nothing happened. */
+  -webkit-tap-highlight-color: transparent;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient light. Teal from the top where the brand lives, violet from the
+   bottom left, so the canvas has a direction instead of reading as flat black.
+   The lower light is violet rather than sky: against a teal brand a blue wash
+   reads as the same colour twice. */
+.ambient {
+  background-image:
+    radial-gradient(820px 460px at 50% -8%, rgba(20, 184, 166, 0.18), transparent 66%),
+    radial-gradient(620px 420px at 92% 12%, rgba(20, 184, 166, 0.08), transparent 60%),
+    radial-gradient(760px 420px at 4% 104%, rgba(139, 92, 246, 0.08), transparent 62%);
+}
+
+/* Faint grid, masked so it fades out before it reaches the message area. */
+.grid-fade::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 30%, transparent 100%);
+}
+
+.glow-brand {
+  box-shadow:
+    0 0 0 1px rgba(20, 184, 166, 0.3),
+    0 10px 40px -10px rgba(20, 184, 166, 0.55);
+}
+
+.lift {
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.lift:hover {
+  transform: translateY(-2px);
+}
+
+/* The demo link is the one thing in the sidebar we want clicked, so it gets
+   motion nothing else has. Slow enough to read as inviting, not as an alert. */
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.16);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(249, 115, 22, 0.34),
+      0 6px 22px -14px rgba(249, 115, 22, 0.55);
+  }
+}
+
+.breathe {
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+/* A looping glow is exactly what vestibular-sensitive users ask to turn off. */
+@media (prefers-reduced-motion: reduce) {
+  .breathe {
+    animation: none;
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.28);
+  }
+}
+
+/* Three dots that actually convey "still working" without a layout shift. */
+@keyframes pulse-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.dot {
+  animation: pulse-dot 1.2s infinite ease-in-out;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 0.18s ease-out;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+}

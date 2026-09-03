@@ -1,0 +1,26 @@
+{
+  "name": "maxistep-support",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Agentic customer support for MaxiStep — a router agent delegating to Support, Order and Billing specialists, with evals",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "eval": "pnpm --filter @repo/evals eval",
+    "eval:live": "pnpm --filter @repo/evals eval:live",
+    "db:push": "pnpm --filter @repo/db db:push",
+    "db:seed": "pnpm --filter @repo/db db:seed",
+    "db:studio": "pnpm --filter @repo/db db:studio"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3"
+  }
+}

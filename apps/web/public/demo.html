@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MaxiStep — Shoes for every step</title>
+<style>
+  :root{
+    --ink:#101418; --muted:#697586; --line:#e3e8ef; --bg:#fff; --soft:#f6f8fa;
+    --brand:#0f766e; --brand-hi:#14b8a6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  a{color:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);z-index:5}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em;font-size:17px}
+  .mark{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,var(--brand),var(--brand-hi));display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800}
+  nav{display:flex;gap:22px;font-size:13.5px;color:var(--muted)}
+  nav span{cursor:default}
+  .hero{padding:52px 0 34px;border-bottom:1px solid var(--line)}
+  .hero h1{margin:0 0 10px;font-size:34px;line-height:1.15;letter-spacing:-.03em}
+  .hero p{margin:0;color:var(--muted);max-width:52ch}
+  .pill{display:inline-block;margin-bottom:14px;padding:4px 11px;border:1px solid var(--line);border-radius:99px;font-size:12px;color:var(--muted);background:var(--soft)}
+  h2{font-size:15px;letter-spacing:-.01em;margin:34px 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:16px;padding-bottom:8px}
+  .card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;transition:box-shadow .15s,transform .15s}
+  .card:hover{box-shadow:0 6px 22px rgba(16,20,24,.07);transform:translateY(-1px)}
+  .shot{height:132px;display:grid;place-items:center;background:var(--soft);border-bottom:1px solid var(--line)}
+  .shot svg{width:96px;height:52px}
+  .body{padding:11px 12px 13px}
+  .name{font-size:13.5px;font-weight:600;margin:0 0 3px;letter-spacing:-.01em}
+  .slug{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--muted);margin:0 0 7px}
+  .price{display:flex;align-items:baseline;gap:7px}
+  .now{font-size:15px;font-weight:700}
+  .was{font-size:11.5px;color:var(--muted);text-decoration:line-through}
+  .off{font-size:11.5px;color:var(--brand);font-weight:600}
+  .fit{margin:8px 0 0;font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:7px}
+  .note{margin:30px 0 46px;padding:15px 17px;border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:0 10px 10px 0;background:var(--soft);font-size:13px;color:#3d4a5c}
+  .note b{color:var(--ink)}
+  .note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  footer{border-top:1px solid var(--line);padding:20px 0 44px;color:var(--muted);font-size:12px}
+  @media (max-width:640px){ nav{display:none} .hero h1{font-size:27px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand"><span class="mark">M</span> MaxiStep</div>
+    <nav><span>Men</span><span>Women</span><span>Running</span><span>Formal</span><span>Sale</span></nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="pill">Free delivery over ₹999 · 14-day returns</span>
+    <h1>Shoes for every step.</h1>
+    <p>Running, walking, trekking and formal — built in UK sizes 3 to 12, with an honest fit note on every pair.</p>
+  </section>
+
+  <h2>Bestsellers</h2>
+  <div class="grid" id="grid"></div>
+
+  <div class="note">
+    <b>This page is the demo host, not the product.</b> MaxiStep is a fictional store seeded with
+    real data in Postgres. The support desk is embedded here the way it would be on a real
+    storefront — one <code>&lt;script src="/widget.js"&gt;</code> tag, rendering in a sandboxed
+    iframe on its own origin, so the host page can never read the conversation.
+    Open it bottom-right and try <code>where is ORD-1042?</code>, or ask for the Oxyfit in a UK 8.5.
+  </div>
+</div>
+
+<footer class="wrap">MaxiStep — demo storefront. Products, orders and prices are seeded sample data.</footer>
+
+<script>
+const SHOE = '<svg viewBox="0 0 128 72" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="50" width="110" height="13" rx="6" fill="CSTROKE"/><path d="M20 51V31c0-9 5-14 14-14h4c4 0 7 2 8 6l5 9c2 5 6 8 11 9l32 2c13 1 20 3 22 8z" fill="CFILL" stroke="CSTROKE" stroke-width="2.5" stroke-linejoin="round"/><path d="M35 26l9 3M34 33l10 3.5M33 40l11 3.5" stroke="CSTROKE" stroke-width="2" stroke-linecap="round" opacity=".5"/><path d="M34 18c-5 3-8 7-8 13" stroke="CSTROKE" stroke-width="2" stroke-linecap="round" fill="none" opacity=".4"/></svg>';
+const PRODUCTS = [
+  {n:"MaxiStep Men Airglide Running Shoes", s:"airglide-men-running", p:1149, m:1899, f:"Runs half a size small — size up if between.", c:"#94a3b8"},
+  {n:"MaxiStep Men Oxyfit Walking Shoes",   s:"oxyfit-men-walking",   p:704,  m:999,  f:"True to size. Take your usual UK size.", c:"#1e3a5f"},
+  {n:"MaxiStep Women Breeze Running Shoes", s:"breeze-women-running", p:1299, m:2199, f:"Narrow through the midfoot. Size up for a high instep.", c:"#fb7185"},
+  {n:"MaxiStep Men Ridgeline Trekking Shoes",s:"ridgeline-men-trekking",p:2299,m:3499, f:"Roomy toe box for descents. Take your usual size.", c:"#4d5f3c"},
+  {n:"MaxiStep Women Cloudwalk Walking Shoes",s:"cloudwalk-women-walking",p:899,m:1499,f:"True to size, forgiving across the forefoot.", c:"#c4b5fd"},
+  {n:"MaxiStep Men Meridian Formal Shoes",  s:"meridian-men-formal",  p:1899, m:2999, f:"Leather last runs large — size down half a size.", c:"#1c1917"},
+  {n:"MaxiStep Men Easyslip Slip-On Shoes", s:"easyslip-men-slip-on", p:429,  m:649,  f:"Snug for the first week; the suede relaxes.", c:"#c8a06a"},
+  {n:"MaxiStep Men Bolt Sports Shoes",      s:"bolt-men-sports",      p:549,  m:899,  f:"True to size.", c:"#27272a"}
+];
+const inr = n => "₹" + n.toLocaleString("en-IN");
+document.getElementById("grid").innerHTML = PRODUCTS.map(p => `
+  <article class="card">
+    <div class="shot">${SHOE.replaceAll("CFILL", p.c).replaceAll("CSTROKE", "#0f172a")}</div>
+    <div class="body">
+      <p class="name">${p.n}</p>
+      <p class="slug">${p.s}</p>
+      <div class="price">
+        <span class="now">${inr(p.p)}</span>
+        <span class="was">${inr(p.m)}</span>
+        <span class="off">${Math.round((1 - p.p / p.m) * 100)}% off</span>
+      </div>
+      <p class="fit">${p.f}</p>
+    </div>
+  </article>`).join("");
+</script>
+
+<script src="/widget.js" data-brand="#14b8a6" data-brand-hi="#2dd4bf" data-label="Ask MaxiStep"></script>
+</body>
+</html>
