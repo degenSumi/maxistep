@@ -1,4 +1,5 @@
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { isAuthFailure, isTransientProviderFailure } from "./provider-errors.js";
 
 // Everything thrown deliberately extends AppError. Anything else is unexpected
 // and its message is never shown to the client.
@@ -80,14 +81,16 @@ export function normaliseProviderError(error: unknown): AppError {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
 
-  if (lower.includes("api key") || lower.includes("unauthenticated") || lower.includes("401")) {
+  if (isAuthFailure(error)) {
     return new ProviderError(
       "The AI provider rejected our credentials. Check the API key in .env.",
     );
   }
-  if (lower.includes("quota") || lower.includes("rate limit") || lower.includes("429")) {
+  // Reaching here means the primary and the fallback both refused, so this is
+  // the honest message rather than "we are rate limited".
+  if (isTransientProviderFailure(error)) {
     return new ProviderError(
-      "The AI provider is rate limiting us. Wait a moment and try again.",
+      "Every model we can reach is busy right now. Give it a few seconds and send that again.",
     );
   }
   if (lower.includes("timeout") || lower.includes("etimedout") || lower.includes("aborted")) {

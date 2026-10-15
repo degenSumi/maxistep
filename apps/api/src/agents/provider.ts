@@ -7,6 +7,7 @@ import {
   type LanguageModelMiddleware,
 } from "ai";
 import { env } from "../config/env.js";
+import { isTransientProviderFailure } from "../lib/provider-errors.js";
 
 // Models are chosen by role: routing sits on the blocking path so it gets the
 // fastest model, sub-agents need tool-calling reliability.
@@ -15,11 +16,11 @@ export type ModelRole = "router" | "agent" | "summary";
 type RoleDefaults = Record<ModelRole, string>;
 
 const PROVIDER_DEFAULTS: Record<typeof env.AI_PROVIDER, RoleDefaults> = {
-  // 2.5-flash-lite is retired for new keys, and flash-latest resolves to 3.7-flash
-  // at 5 req/min. The 3.5 family is what actually has free-tier headroom.
+  // Google recommends 3.6 over 3.5 for the answering role. There is no 3.6 lite,
+  // so the two cheap roles stay on 3.5-flash-lite.
   google: {
     router: "gemini-3.5-flash-lite",
-    agent: "gemini-3.5-flash",
+    agent: "gemini-3.6-flash",
     summary: "gemini-3.5-flash-lite",
   },
   openai: {
@@ -76,6 +77,20 @@ const providerClient = (() => {
   }
 })();
 
+// Free models on the fallback route stream their chain of thought as ordinary
+// content, so the customer reads "I should call listPayments". OpenRouter drops
+// it at the source, which beats stripping it from a stream.
+const suppressReasoning: typeof fetch = (input, init) => {
+  if (typeof init?.body !== "string") return fetch(input, init);
+  try {
+    const body = JSON.parse(init.body);
+    body.reasoning = { exclude: true };
+    return fetch(input, { ...init, body: JSON.stringify(body) });
+  } catch {
+    return fetch(input, init);
+  }
+};
+
 /**
  * A second provider, used only when the primary fails.
  */
@@ -85,21 +100,31 @@ const fallbackClient =
         name: "openrouter-fallback",
         baseURL: "https://openrouter.ai/api/v1",
         apiKey: env.OPENROUTER_API_KEY,
+        fetch: suppressReasoning,
       })
     : null;
 
-// Only quota/throttle/retired-model is worth retrying elsewhere. Anything else
-// fails identically on the fallback.
-export function isRetryableProviderFailure(error: unknown): boolean {
-  const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
-  return (
-    message.includes("quota") ||
-    message.includes("rate limit") ||
-    message.includes("429") ||
-    message.includes("overloaded") ||
-    message.includes("unavailable") ||
-    message.includes("no longer available") ||
-    message.includes("503")
+// Kept as the public name because the eval suite imports it. The logic now
+// lives in one place and reads the status code, not just the message text.
+export const isRetryableProviderFailure = isTransientProviderFailure;
+
+function reasonOf(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.slice(0, 200);
+}
+
+// Log the reason, not just the fact. "Fell back" on its own leaves you unable
+// to tell a transient rate limit from a retired model.
+function logFailover(error: unknown) {
+  console.warn(
+    `[provider] primary failed, falling back to ${env.FALLBACK_MODEL}\n           reason: ${reasonOf(error)}`,
+  );
+}
+
+// Without this line a busy fallback looks identical to a busy primary.
+function logFallbackFailure(error: unknown) {
+  console.error(
+    `[provider] fallback ${env.FALLBACK_MODEL} also failed\n           reason: ${reasonOf(error)}`,
   );
 }
 
@@ -117,28 +142,28 @@ function withFallback(primary: ModelObject, fallback: ModelObject): LanguageMode
         try {
           return await doGenerate();
         } catch (error) {
-          if (!isRetryableProviderFailure(error)) throw error;
-          // Log the reason, not just the fact. "Fell back" on its own leaves
-          // you unable to tell a transient rate limit from a retired model.
-          const reason = error instanceof Error ? error.message : String(error);
-          console.warn(
-            `[provider] primary failed → falling back to ${env.FALLBACK_MODEL}\n           reason: ${reason.slice(0, 200)}`,
-          );
-          return fallback.doGenerate(params);
+          if (!isTransientProviderFailure(error)) throw error;
+          logFailover(error);
+          try {
+            return await fallback.doGenerate(params);
+          } catch (fallbackError) {
+            logFallbackFailure(fallbackError);
+            throw fallbackError;
+          }
         }
       },
       wrapStream: async ({ doStream, params }) => {
         try {
           return await doStream();
         } catch (error) {
-          if (!isRetryableProviderFailure(error)) throw error;
-          // Log the reason, not just the fact. "Fell back" on its own leaves
-          // you unable to tell a transient rate limit from a retired model.
-          const reason = error instanceof Error ? error.message : String(error);
-          console.warn(
-            `[provider] primary failed → falling back to ${env.FALLBACK_MODEL}\n           reason: ${reason.slice(0, 200)}`,
-          );
-          return fallback.doStream(params);
+          if (!isTransientProviderFailure(error)) throw error;
+          logFailover(error);
+          try {
+            return await fallback.doStream(params);
+          } catch (fallbackError) {
+            logFallbackFailure(fallbackError);
+            throw fallbackError;
+          }
         }
       },
     },
