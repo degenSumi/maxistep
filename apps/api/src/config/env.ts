@@ -39,7 +39,10 @@ const envSchema = z
      * Optional second provider used only when the primary fails with a
      * retryable error. Requires OPENROUTER_API_KEY. Leave unset to disable.
      */
-    FALLBACK_MODEL: z.string().optional(),
+    // A fallback on the same upstream as the primary is not a fallback: one
+    // Google capacity event takes both out. openrouter/free routes across
+    // whatever free models are actually up.
+    FALLBACK_MODEL: z.string().default("openrouter/free"),
 
     RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
     RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(30),
